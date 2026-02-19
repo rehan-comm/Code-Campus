@@ -1,0 +1,1506 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Course Player - CodeCampus" />
+    <meta name="author" content="CodeCampus" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Course Player - Code Campus</title>
+    <style>
+        /* Course Player Specific Styles */
+        .player-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 10%);
+        }
+
+        .video-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-player {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            /* 16:9 aspect ratio */
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-info {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-info h1 {
+            font-size: 24px;
+            margin: 0 0 12px;
+            color: #1a1a1a;
+        }
+
+        .video-info p {
+            color: #666;
+            margin: 0;
+        }
+
+        .lectures-sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 130px);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: linear-gradient(#0D47C7, #5A6FD6, #C77DFF);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .sidebar-header p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .lectures-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .lecture-item-player {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lecture-item-player:hover {
+            background: #f9f9f9;
+        }
+
+        .lecture-item-player.active {
+            background: #e8f0fe;
+            border-left: 4px solid #0D47C7;
+        }
+
+        .lecture-item-player i {
+            font-size: 20px;
+            color: #0D47C7;
+        }
+
+        .lecture-item-player.completed i {
+            color: #10b981;
+        }
+
+        .lecture-details {
+            flex: 1;
+        }
+
+        .lecture-details h3 {
+            margin: 0 0 4px;
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .lecture-details span {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .progress-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .lecture-item-player.completed .progress-indicator {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .lecture-item-player.active .progress-indicator {
+            border-color: #0D47C7;
+            color: #0D47C7;
+        }
+
+        @media (max-width: 1200px) {
+            .player-container {
+                grid-template-columns: 1fr;
+            }
+
+            .lectures-sidebar {
+                max-height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .player-container {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .video-info {
+                padding: 16px;
+            }
+
+            .video-info h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+        <div class="root-left">
+            <div class="logo-wrap">
+                <button class="hamburger" aria-label="Open menu"><i class="ri-menu-line"></i></button>
+                <img src="logo.png" alt="CodeCampus Logo" class="logo-img" />
+            </div>
+            <ul class="nav-list">
+                <li><a href="index.html"><i class="ri-graduation-cap-fill"></i> <span
+                            class="link-text">Courses</span></a></li>
+                <li><a href="dashboard.html"><i class="ri-dashboard-fill"></i> <span
+                            class="link-text">Dashboard</span></a></li>
+                <li><a href="enrolled-courses.html"><i class="ri-shield-check-fill"></i> <span class="link-text">My
+                            Courses</span></a></li>
+                <li><a href="#"><i class="ri-info-i"></i> <span class="link-text">About Us</span></a></li>
+                <li><a href="#"><i class="ri-computer-fill"></i> <span class="link-text">Visit Portfolio</span></a></li>
+                <li><a href="#"><i class="ri-user-fill"></i> <span class="link-text">Instructer</span></a></li>
+                <li><a href="#"><i class="ri-customer-service-fill"></i> <span class="link-text">Help Center</span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="root-right">
+            <div class="root-right-up">
+                <button id="authBtn" onclick="window.location.href='login.html'"><a href="#">Sign
+                        up/Register</a></button>
+                <div id="profileDropdown" class="dropdown-container hidden">
+                    <button class="dropdown-btn"><img id="profileImg" src="" alt="Profile"></button>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <ul>
+                            <li><a href="profile.html"><i class="ri-user-line"></i> Profile</a></li>
+                            <li><a href="enrolled-courses.html"><i class="ri-book-line"></i> My Courses</a></li>
+                            <li><a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a></li>
+                            <li><a href="#" class="logout" onclick="handleLogout(); return false;"><i
+                                        class="ri-logout-box-line"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="root-right-down detail-page">
+                <div class="course-detail-container">
+                    <button class="back-btn" onclick="window.location.href='enrolled-courses.html'"><i
+                            class="ri-arrow-left-line"></i> Back to My Courses</button>
+
+                    <div class="player-container">
+                        <div class="video-section">
+                            <div class="video-player">
+                                <iframe id="videoPlayer" src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                            <div class="video-info">
+                                <h1 id="currentLectureTitle">Introduction to Web Development</h1>
+                                <p id="currentLectureDesc">Welcome to the course! In this lecture, we'll introduce you
+                                    to the fundamentals of web development.</p>
+                            </div>
+                        </div>
+
+                        <div class="lectures-sidebar">
+                            <div class="sidebar-header">
+                                <h2 id="courseTitle">Course Content</h2>
+                                <p id="courseProgress">0 of 10 lectures completed</p>
+                            </div>
+                            <div class="lectures-list" id="lecturesList">
+                                <!-- Lectures will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="script.js"></script>
+    <script>
+        let currentUser = null;
+        let courseId = null;
+        let currentLectureIndex = 0;
+
+        // Course lectures data
+        const courseLectures = {
+            '1': [
+                {
+                    "title": "Installing VS Code & How Websites Work | Sigma Web Development Course - Tutorial #1",
+                    "duration": "31:20",  // Approx, actual video length
+                    "videoUrl": "https://www.youtube.com/embed/tVzUXW6siu0",
+                    "description": "VS Code install karna aur websites kaise kaam karti hain."
+                },
+                {
+                    "title": "Your First HTML Website | Sigma Web Development Course - Tutorial #2",
+                    "duration": "28:31",
+                    "videoUrl": "https://www.youtube.com/embed/kJEsTjH5mVg",
+                    "description": "Apni pehli HTML website banana."
+                },
+                {
+                    "title": "Basic Structure of an HTML Website | Sigma Web Development Course - Tutorial #3",
+                    "duration": "~19:00",
+                    "videoUrl": "https://www.youtube.com/embed/BGeDBfCIqas",
+                    "description": "HTML ka basic structure aur boilerplate."
+                },
+                {
+                    "title": "Heading, Paragraphs and Links | Sigma Web Development Course - Tutorial #4",
+                    "duration": "~19:34",
+                    "videoUrl": "https://www.youtube.com/embed/nXba2-mgn1k",
+                    "description": "Headings, paragraphs aur links (anchor tags)."
+                },
+                {
+                    "title": "Image, Lists, and Tables in HTML | Sigma Web Development Course - Tutorial #5",
+                    "duration": "18:20",
+                    "videoUrl": "https://www.youtube.com/embed/1BsVhumGlNc",
+                    "description": "Images, ordered/unordered lists aur tables."
+                },
+                {
+                    "title": "SEO and Core Web Vitals in HTML | Sigma Web Development Course - Tutorial #6",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/CyRlWlaJnTY",
+                    "description": "HTML mein SEO basics aur Core Web Vitals."
+                },
+                {
+                    "title": "Forms and input tags in HTML | Sigma Web Development Course - Tutorial #7",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/tLBlhp0SA_0",
+                    "description": "HTML forms aur different input types."
+                },
+                {
+                    "title": "Inline & Block Elements in HTML | Sigma Web Development Course - Tutorial #8",
+                    "duration": "~14:00",
+                    "videoUrl": "https://www.youtube.com/embed/vnnlUCLfn6I",
+                    "description": "Inline vs Block elements ka farq."
+                },
+                {
+                    "title": "Id & Classes in HTML | Sigma Web Development Course - Tutorial #9",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/vlAWzsGd-Yk",
+                    "description": "ID aur Classes ka use HTML mein."
+                },
+                {
+                    "title": "Video, Audio & Media in HTML | Sigma Web Development Course - Tutorial #10",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/XZwBNDGuWGU",
+                    "description": "Video, audio aur media elements embed karna."
+                },
+                {
+                    "title": "Semantic Tags in HTML | Sigma Web Development Course - Tutorial #11",
+                    "duration": "10:42",
+                    "videoUrl": "https://www.youtube.com/embed/fhoDRB53DwY",
+                    "description": "HTML ke semantic tags aur unka proper use."
+                },
+                {
+                    "title": "Exercise 1 - Pure HTML Media Player | Sigma Web Development Course - Tutorial #12",
+                    "duration": "3:41",
+                    "videoUrl": "https://www.youtube.com/embed/5xFRg_TzlAg",
+                    "description": "Pehla exercise: Sirf HTML se media player banana."
+                },
+                {
+                    "title": "Entities, Code tag and more on HTML | Sigma Web Development Course - Tutorial #13",
+                    "duration": "9:21",
+                    "videoUrl": "https://www.youtube.com/embed/cvsbHZcDx8w",
+                    "description": "HTML entities, <code> tag aur aur kuch important cheezein."
+                },
+                {
+                    "title": "Introduction to CSS | Sigma Web Development Course - Tutorial #14",
+                    "duration": "9:14",
+                    "videoUrl": "https://www.youtube.com/embed/1dkfuga2_Ps",
+                    "description": "CSS ki basic introduction aur styling shuru."
+                },
+                {
+                    "title": "Inline, Internal & External CSS | Sigma Web Development Course - Tutorial #15",
+                    "duration": "11:04",
+                    "videoUrl": "https://www.youtube.com/embed/-XwZpYIyCEA",
+                    "description": "CSS ke 3 tarike: Inline, Internal aur External."
+                },
+                {
+                    "title": "Exercise 1 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #16",
+                    "duration": "7:19",
+                    "videoUrl": "https://www.youtube.com/embed/anGMeDGvZhw",
+                    "description": "Exercise 1 ka solution aur students ke shoutouts."
+                },
+                {
+                    "title": "CSS Selectors MasterClass | Sigma Web Development Course - Tutorial #17",
+                    "duration": "14:00",
+                    "videoUrl": "https://www.youtube.com/embed/1cEG1T8beO4",
+                    "description": "CSS selectors ki full masterclass (element, class, ID, etc.)."
+                },
+                {
+                    "title": "CSS Box Model - Margin, Padding & Borders | Sigma Web Development Course - Tutorial #18",
+                    "duration": "17:41",
+                    "videoUrl": "https://www.youtube.com/embed/Xrxd6cEajhM",
+                    "description": "Box model samajhna: Margin, padding, border aur content."
+                },
+                {
+                    "title": "CSS Fonts, Text & Color Properties | Sigma Web Development Course - Tutorial #19",
+                    "duration": "32:08",
+                    "videoUrl": "https://www.youtube.com/embed/aFicd4-YTfo",
+                    "description": "Fonts, text properties, line-height, color sab detail mein."
+                },
+                {
+                    "title": "Exercise 2 - CSS Challenge | Sigma Web Development Course - Tutorial #20",
+                    "duration": "4:19",
+                    "videoUrl": "https://www.youtube.com/embed/4aBolpJoutw",
+                    "description": "Dusra exercise: CSS se challenge complete karo."
+                },
+                {
+                    "title": "CSS Specificity & Cascade | Sigma Web Development Course - Tutorial #21",
+                    "duration": "20:07",
+                    "videoUrl": "https://www.youtube.com/embed/uTcpbPMZlFE",
+                    "description": "CSS mein specificity aur cascade rules samajhna."
+                },
+                {
+                    "title": "CSS Sizing Units - px, rem, em, vh, vw, % & more | Sigma Web Development Course - Tutorial #22",
+                    "duration": "26:24",
+                    "videoUrl": "https://www.youtube.com/embed/nkaAJYfRDVk",
+                    "description": "Different sizing units jaise px, rem, em, vh, vw etc."
+                },
+                {
+                    "title": "CSS Display Property | Sigma Web Development Course - Tutorial #23",
+                    "duration": "12:08",
+                    "videoUrl": "https://www.youtube.com/embed/hRHV5cjEB1w",
+                    "description": "Display property ke types: block, inline, inline-block, none etc."
+                },
+                {
+                    "title": "CSS Shadows and Outlines | Sigma Web Development Course - Tutorial #24",
+                    "duration": "13:10",
+                    "videoUrl": "https://www.youtube.com/embed/BZJcNU648Tc",
+                    "description": "Box-shadow, text-shadow aur outline ka use."
+                },
+                {
+                    "title": "Styling Lists using CSS | Sigma Web Development Course - Tutorial #25",
+                    "duration": "9:52",
+                    "videoUrl": "https://www.youtube.com/embed/ZIofkptpXO8",
+                    "description": "Lists ko CSS se customize karna (markers, positions etc.)."
+                },
+                {
+                    "title": "CSS Overflow Property | Sigma Web Development Course - Tutorial #26",
+                    "duration": "8:21",
+                    "videoUrl": "https://www.youtube.com/embed/ntlawluDB-c",
+                    "description": "Overflow: visible, hidden, scroll, auto ka practical use."
+                },
+                {
+                    "title": "Exercise 2 - Solutions and Shoutouts | Sigma Web Development Course - Tutorial #27",
+                    "duration": "10:16",
+                    "videoUrl": "https://www.youtube.com/embed/g1HJ65p5YdI",
+                    "description": "Exercise 2 ke solutions aur students ke shoutouts."
+                },
+                {
+                    "title": "CSS Position Property | Sigma Web Development Course - Tutorial #28",
+                    "duration": "24:05",
+                    "videoUrl": "https://www.youtube.com/embed/cOw6tgH6P20",
+                    "description": "Position: static, relative, absolute, fixed, sticky full detail."
+                },
+                {
+                    "title": "Exercise 3 - Design this Card | Sigma Web Development Course - Tutorial #29",
+                    "duration": "6:18",
+                    "videoUrl": "https://www.youtube.com/embed/nm3HrrUuz50",
+                    "description": "Ek beautiful card design karne ka exercise."
+                },
+                {
+                    "title": "CSS Variables | Sigma Web Development Course - Tutorial #30",
+                    "duration": "13:20",
+                    "videoUrl": "https://www.youtube.com/embed/ovRU9xHfly4",
+                    "description": "Custom properties (CSS variables) ka introduction aur use."
+                },
+                {
+                    "title": "CSS Media Queries | Sigma Web Development Course - Tutorial #31",
+                    "duration": "11:37",
+                    "videoUrl": "https://www.youtube.com/embed/eHye3PxH4jU",
+                    "description": "Responsive design ke liye media queries."
+                },
+                {
+                    "title": "Exercise 3 - Solution | Sigma Web Development Course - Tutorial #32",
+                    "duration": "19:48",
+                    "videoUrl": "https://www.youtube.com/embed/2PWgbyL3ex8",
+                    "description": "Exercise 3 (card design) ka complete solution."
+                },
+                {
+                    "title": "Exercise 4 - Multi Color Website | Sigma Web Development Course - Tutorial #33",
+                    "duration": "2:33",
+                    "videoUrl": "https://www.youtube.com/embed/-WN74rN9OPI",
+                    "description": "Multi-color theme wali website design exercise."
+                },
+                {
+                    "title": "CSS Float & Clear | Sigma Web Development Course - Tutorial #34",
+                    "duration": "10:42",
+                    "videoUrl": "https://www.youtube.com/embed/6_UoTF7njLM",
+                    "description": "Float aur clear ka traditional layout use (ab kam use hota hai)."
+                },
+                {
+                    "title": "More on CSS Selectors | Sigma Web Development Course - Tutorial #35",
+                    "duration": "13:24",
+                    "videoUrl": "https://www.youtube.com/embed/L8NfSewTfxY",
+                    "description": "Advanced selectors jaise attribute, pseudo-classes etc."
+                },
+                {
+                    "title": "Exercise 4 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #36",
+                    "duration": "13:45",
+                    "videoUrl": "https://www.youtube.com/embed/n1T6Ve00j24",
+                    "description": "Exercise 4 ke solutions aur shoutouts."
+                },
+                {
+                    "title": "CSS Exercise 5 - Design this Layout | Sigma Web Development Course - Tutorial #37",
+                    "duration": "7:16",
+                    "videoUrl": "https://www.youtube.com/embed/8Hk4MmO9ZeQ",
+                    "description": "Ek complex layout design karne ka exercise."
+                },
+                {
+                    "title": "CSS Flexbox - Ultimate MasterClass | Sigma Web Development Course - Tutorial #38",
+                    "duration": "27:58",
+                    "videoUrl": "https://www.youtube.com/embed/DWk2mndNTHY",
+                    "description": "Flexbox ki full masterclass – sab kuch detail mein."
+                },
+                {
+                    "title": "CSS Grid - Ultimate MasterClass | Sigma Web Development Course - Tutorial #39",
+                    "duration": "32:12",
+                    "videoUrl": "https://www.youtube.com/embed/7AgEjgUtho4",
+                    "description": "CSS Grid layout ki complete masterclass."
+                },
+                {
+                    "title": "Exercise 5 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #40",
+                    "duration": "15:50",
+                    "videoUrl": "https://www.youtube.com/embed/-uVJlSHueYQ",
+                    "description": "Exercise 5 ke solutions aur students ke shoutouts."
+                },
+                {
+                    "title": "Exercise 6 – Navbar using Flexbox | Sigma Web Development Course - Tutorial #41",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/A5fK2Y8-if8",
+                    "description": "Flexbox use karke responsive navbar design exercise."
+                },
+                {
+                    "title": "CSS Transforms MasterClass | Sigma Web Development Course - Tutorial #42",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/GGlzzLTLzxs",
+                    "description": "CSS transforms (rotate, scale, translate, skew) full masterclass."
+                },
+                {
+                    "title": "Exercise 6 – Solution & Shoutouts | Sigma Web Development Course - Tutorial #43",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/SC7GCk1OiVo",
+                    "description": "Exercise 6 (navbar) ka solution aur shoutouts."
+                },
+                {
+                    "title": "Exercise 7 – Design the Grid | Sigma Web Development Course - Tutorial #44",
+                    "duration": "~8:00",
+                    "videoUrl": "https://www.youtube.com/embed/zJaiTrw-hu8",
+                    "description": "Grid layout se design challenge exercise."
+                },
+                {
+                    "title": "CSS Transition Property | Sigma Web Development Course - Tutorial #45",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/pHI4PBFM0wY",
+                    "description": "Smooth transitions (hover effects etc.) ka detail."
+                },
+                {
+                    "title": "CSS Animations | Sigma Web Development Course - Tutorial #46",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/cDLVIoXW-OQ",
+                    "description": "@keyframes aur animations create karna."
+                },
+                {
+                    "title": "Exercise 7 – Solution & Shoutouts | Sigma Web Development Course - Tutorial #47",
+                    "duration": "~12:00",
+                    "videoUrl": "https://www.youtube.com/embed/yktqxOHOeR4",
+                    "description": "Exercise 7 (grid) ka solution aur shoutouts."
+                },
+                {
+                    "title": "Exercise 8 – Bounce Animation | Sigma Web Development Course - Tutorial #48",
+                    "duration": "~5:00",
+                    "videoUrl": "https://www.youtube.com/embed/PIC0Ps_Ci-s",
+                    "description": "Bounce animation create karne ka exercise."
+                },
+                {
+                    "title": "CSS Object-fit and Object-cover | Sigma Web Development Course - Tutorial #49",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/ognrhoi0C-w",
+                    "description": "Images/videos ko fit/cover karne ke properties."
+                },
+                {
+                    "title": "CSS Filters | Sigma Web Development Course - Tutorial #50",
+                    "duration": "~12:00",
+                    "videoUrl": "https://www.youtube.com/embed/tSzDHVWG1hI",
+                    "description": "Blur, brightness, contrast jaise filters apply karna."
+                },
+                {
+                    "title": "Exercise 8: Solution & Shoutouts | Sigma Web Development Course - Tutorial #51",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/chYx6vVzWVw",
+                    "description": "Exercise 8 (bounce animation) ka solution aur shoutouts."
+                },
+                {
+                    "title": "Figma Basics in One Video | Sigma Web Development Course - Tutorial #52",
+                    "duration": "~30:00",
+                    "videoUrl": "https://www.youtube.com/embed/mpJb9GNxdYI",
+                    "description": "Figma tool ki quick basics for UI design."
+                },
+                {
+                    "title": "Netflix Clone Using HTML & CSS | Sigma Web Development Course - Tutorial #53",
+                    "duration": "~60:00+",
+                    "videoUrl": "https://www.youtube.com/embed/ovKVqo-L2EM",
+                    "description": "Netflix homepage clone project with HTML & CSS."
+                },
+                {
+                    "title": "Introduction to JavaScript & Installing Node.js | Sigma Web Development Course - Tutorial #54",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/NrhP53Divco",
+                    "description": "JS intro aur Node.js install/setup."
+                },
+                {
+                    "title": "JavaScript Variables, Data Types & Objects | Sigma Web Development Course - Tutorial #55",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/HGCDMJXS1cc",
+                    "description": "Variables, primitive/non-primitive types, objects."
+                },
+                {
+                    "title": "JavaScript Conditionals: if, else if, else ladder | Sigma Web Development Course - Tutorial #56",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/1R4NGtsj7hw",
+                    "description": "If-else conditions aur switch statements."
+                },
+                {
+                    "title": "JavaScript Loops | Sigma Web Development Course - Tutorial #57",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/y32sWmu-RI4",
+                    "description": "for, while, do-while, forEach loops."
+                },
+                {
+                    "title": "JavaScript Functions | Sigma Web Development Course - Tutorial #58",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/Jtc3j4ZNZEQ",
+                    "description": "Functions, parameters, return, arrow functions."
+                },
+                {
+                    "title": "Exercise 9 – Faulty Calculator | Sigma Web Development Course - Tutorial #59",
+                    "duration": "~5:00",
+                    "videoUrl": "https://www.youtube.com/embed/OrWmrQ2wrKU",
+                    "description": "Fun faulty calculator project exercise in JS."
+                },
+                {
+                    "title": "JavaScript Strings | Sigma Web Development Course - Tutorial #60",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/uJbYqm7W_mA",
+                    "description": "Strings methods, template literals, accessing chars."
+                },
+                {
+                    "title": "JavaScript Exercise 9 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #61",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/nQAUGxt2qoU",
+                    "description": "Faulty calculator exercise ka solution aur shoutouts."
+                },
+                {
+                    "title": "JavaScript Exercise 10 - Business Name Generator | Sigma Web Development Course - Tutorial #62",
+                    "duration": "~5:00",
+                    "videoUrl": "https://www.youtube.com/embed/FkEbEfHQAZw",
+                    "description": "Fun business name generator project exercise in JS."
+                },
+                {
+                    "title": "JavaScript Arrays | Sigma Web Development Course - Tutorial #63",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/IFZZAaiatcQ",
+                    "description": "Arrays create, methods (push, pop, splice, etc.) full detail."
+                },
+                {
+                    "title": "JavaScript Exercise 10 - Solution | Sigma Web Development Course - Tutorial #64",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/wPWZqewZ4LA",
+                    "description": "Business name generator exercise ka solution."
+                },
+                {
+                    "title": "JavaScript Exercise 11 - Calculate the Factorial | Sigma Web Development Course - Tutorial #65",
+                    "duration": "~5:00",
+                    "videoUrl": "https://www.youtube.com/embed/ccfq9yW-dYU",
+                    "description": "Factorial calculate karne ka exercise (recursive/loop)."
+                },
+                {
+                    "title": "Document Object Model in JavaScript | Sigma Web Development Course - Tutorial #66",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/oxO1Z5L5S4c",
+                    "description": "DOM intro – browser mein HTML ko JS se control karna."
+                },
+                {
+                    "title": "JavaScript DOM - Children, Parent & Sibling Nodes | Sigma Web Development Course - Tutorial #67",
+                    "duration": "~12:00",
+                    "videoUrl": "https://www.youtube.com/embed/_8o_BiLAgQM",
+                    "description": "DOM traversal: parent, child, siblings access karna."
+                },
+                {
+                    "title": "JavaScript - Selecting by Ids, Classes, and More | Sigma Web Development Course - Tutorial #68",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/uFbCTidM-xw",
+                    "description": "getElementById, querySelector, getElementsByClassName etc."
+                },
+                {
+                    "title": "JavaScript Exercise 11 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #69",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/Xoz_KYfaSkk",
+                    "description": "Factorial exercise solution aur shoutouts."
+                },
+                {
+                    "title": "JavaScript Exercise 12 - Color the Boxes | Sigma Web Development Course - Tutorial #70",
+                    "duration": "~6:00",
+                    "videoUrl": "https://www.youtube.com/embed/V4ohRrvu4Ok",
+                    "description": "Random colors se boxes color karne ka DOM exercise."
+                },
+                {
+                    "title": "Inserting and Removing Elements using JavaScript | Sigma Web Development Course - Tutorial #71",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/KB7GzBv5p4Q",
+                    "description": "createElement, appendChild, removeChild, innerHTML etc."
+                },
+                {
+                    "title": "JavaScript Exercise 12 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #72",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/mCx5aSEK8YE",
+                    "description": "Color the boxes exercise solution."
+                },
+                {
+                    "title": "JavaScript Exercise 13 - Dynamic Website Builder | Sigma Web Development Course - Tutorial #73",
+                    "duration": "~8:00",
+                    "videoUrl": "https://www.youtube.com/embed/KtL-SQ20Q0s",
+                    "description": "Dynamic content generate karne ka advanced exercise."
+                },
+                {
+                    "title": "Events, Event Bubbling, setInterval & setTimeout | Sigma Web Development Course - Tutorial #74",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/CO_DAXswOrc",
+                    "description": "Click, mouse events, bubbling, timers in JS."
+                },
+                {
+                    "title": "JavaScript Callbacks & Promises | Sigma Web Development Course - Tutorial #75",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/9JaDBYPmiJ0",
+                    "description": "Callbacks hell se bachne ke liye promises."
+                },
+                {
+                    "title": "Async/Await & Fetch API in JavaScript with Examples | Sigma Web Development Course - Tutorial #76",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/gRLdHSabW3o",
+                    "description": "Modern async code: async/await + fetch for APIs."
+                },
+                {
+                    "title": "JavaScript Exercise 13 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #77",
+                    "duration": "~12:00",
+                    "videoUrl": "https://www.youtube.com/embed/UzYRQURh_pY",
+                    "description": "Dynamic website builder solution."
+                },
+                {
+                    "title": "JavaScript Exercise 14 - Hacker's Terminal | Sigma Web Development Course - Tutorial #78",
+                    "duration": "~7:00",
+                    "videoUrl": "https://www.youtube.com/embed/WYazkpCQNQw",
+                    "description": "Hacker-style typing terminal animation exercise."
+                },
+                {
+                    "title": "JavaScript try catch & Error Handling | Sigma Web Development Course - Tutorial #79",
+                    "duration": "~12:00",
+                    "videoUrl": "https://www.youtube.com/embed/aQn7ssqHYp4",
+                    "description": "Errors handle karna with try-catch-finally."
+                },
+                {
+                    "title": "Classes & Objects - Object Oriented Programming in Js | Sigma Web Development Course - Tutorial #80",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/FeBbjzVOeRU",
+                    "description": "OOP in JS: classes, constructors, inheritance."
+                },
+                {
+                    "title": "JavaScript Exercise 14 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #81",
+                    "duration": "~10:00",
+                    "videoUrl": "https://www.youtube.com/embed/9H-Ieq6zjIY",
+                    "description": "Hacker's terminal exercise solution."
+                },
+                {
+                    "title": "Advanced JavaScript | Sigma Web Development Course - Tutorial #82",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/tcQDnqRakxk",
+                    "description": "Advanced concepts: closures, hoisting, this keyword etc."
+                },
+                {
+                    "title": "JavaScript Interview Questions | Sigma Web Development Course - Tutorial #83",
+                    "duration": "~30:00",
+                    "videoUrl": "https://www.youtube.com/embed/Vwxs9YJWsx4",
+                    "description": "Common JS interview questions discussion."
+                },
+                {
+                    "title": "Spotify Clone using HTML, CSS & JavaScript | Sigma Web Development Course - Tutorial #84",
+                    "duration": "~60:00+",
+                    "videoUrl": "https://www.youtube.com/embed/CYwEq1GdU4E",
+                    "description": "Spotify-like music player project with JS logic."
+                },
+                {
+                    "title": "Backend, Node.js & npm | Sigma Web Development Course - Tutorial #85",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/NoWRBo3Uf8E",
+                    "description": "Backend intro, Node.js install, npm basics."
+                },
+                {
+                    "title": "CommonJs Vs EcmaScript Modules | Sigma Web Development Course - Tutorial #86",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/bU69doALJGU",
+                    "description": "require vs import – module systems comparison."
+                },
+                {
+                    "title": "Working with Files: fs and path Modules | Sigma Web Development Course - Tutorial #87",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/BTcmvrCTyNg",
+                    "description": "File system: read/write files using fs module."
+                },
+                {
+                    "title": "Introduction to Express Js | Sigma Web Development Course - Tutorial #88",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/R11tvGM3nDY",
+                    "description": "Express framework intro for web servers."
+                },
+                {
+                    "title": "Response, Request and Routers in Express | Sigma Web Development Course - Tutorial #89",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/SksvlZM-5Sk",
+                    "description": "req, res objects aur routing in Express."
+                },
+                {
+                    "title": "Middlewares in Express Js | Sigma Web Development Course - Tutorial #90",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/VELNPK0dK84",
+                    "description": "Custom middlewares, app.use() ka use."
+                },
+                {
+                    "title": "Installing MongoDB & MongoDB Compass | Sigma Web Development Course - Tutorial #91",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/oMrKVEedpHg",
+                    "description": "MongoDB local install aur Compass GUI tool setup."
+                },
+                {
+                    "title": "Introduction to MongoDB | Sigma Web Development Course - Tutorial #92",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/Ofme2o29ngU",
+                    "description": "MongoDB basics: NoSQL, databases, collections, documents."
+                },
+                {
+                    "title": "CRUD Operations in MongoDB | Sigma Web Development Course - Tutorial #93",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/ikNqZxM1W5E",
+                    "description": "Create, Read, Update, Delete operations in MongoDB shell/Compass."
+                },
+                {
+                    "title": "Mongoose & Connecting Express to MongoDB | Sigma Web Development Course - Tutorial #94",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/3pTLHlz4vEM",
+                    "description": "Mongoose ODM intro aur Express app ko MongoDB se connect karna."
+                },
+                {
+                    "title": "Mongoose Schemas & Models | Sigma Web Development Course - Tutorial #95",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/1NrR3KC2jA8",
+                    "description": "Schemas define karna, models create, validation basics."
+                },
+                {
+                    "title": "CRUD with Mongoose & Express | Sigma Web Development Course - Tutorial #96",
+                    "duration": "~30:00",
+                    "videoUrl": "https://www.youtube.com/embed/0o0tSaJQ89Q",
+                    "description": "Full CRUD API banane using Express + Mongoose."
+                },
+                {
+                    "title": "Building a REST API with Express & MongoDB | Sigma Web Development Course - Tutorial #97",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/0-S5a0eKi7E",
+                    "description": "Complete RESTful API project (GET, POST, PUT, DELETE)."
+                },
+                {
+                    "title": "Environment Variables & .env in Node.js | Sigma Web Development Course - Tutorial #98",
+                    "duration": "~12:00",
+                    "videoUrl": "https://www.youtube.com/embed/---REMOVED---",  // Placeholder if exact ID vary, check playlist
+                    "description": "dotenv use karke secrets secure karna."
+                },
+                {
+                    "title": "User Registration & Login Backend | Sigma Web Development Course - Tutorial #99",
+                    "duration": "~30:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "User model, bcrypt hashing, registration route."
+                },
+                {
+                    "title": "JWT Authentication in Node.js | Sigma Web Development Course - Tutorial #100",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/mbsmsi7l3r4",
+                    "description": "JWT tokens generate, verify for auth."
+                },
+                {
+                    "title": "Protected Routes & Middleware | Sigma Web Development Course - Tutorial #101",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Auth middleware se routes protect karna."
+                },
+                {
+                    "title": "React Introduction & Setup | Sigma Web Development Course - Tutorial #102",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "React basics, create-react-app ya Vite setup."
+                },
+                {
+                    "title": "JSX & Components in React | Sigma Web Development Course - Tutorial #103",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "JSX syntax, functional components."
+                },
+                {
+                    "title": "Props in React | Sigma Web Development Course - Tutorial #104",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Props pass karna parent to child."
+                },
+                {
+                    "title": "State in React | useState Hook | Sigma Web Development Course - Tutorial #105",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "useState hook se local state manage."
+                },
+                {
+                    "title": "Handling Events in React | Sigma Web Development Course - Tutorial #106",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "onClick, onChange events handle karna."
+                },
+                {
+                    "title": "useEffect Hook in React | Sigma Web Development Course - Tutorial #107",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Side effects, lifecycle with useEffect."
+                },
+                {
+                    "title": "Fetching Data with useEffect & fetch | Sigma Web Development Course - Tutorial #108",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "API se data fetch in React."
+                },
+                {
+                    "title": "React Router Introduction | Sigma Web Development Course - Tutorial #109",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Multi-page feel with react-router-dom."
+                },
+                {
+                    "title": "Building a Todo App in React | Sigma Web Development Course - Tutorial #110",
+                    "duration": "~40:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Todo list project with state, CRUD."
+                },
+                {
+                    "title": "Context API in React | Sigma Web Development Course - Tutorial #111",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Global state without prop drilling."
+                },
+                {
+                    "title": "useReducer Hook | Sigma Web Development Course - Tutorial #112",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Complex state logic with useReducer."
+                },
+                {
+                    "title": "Custom Hooks in React | Sigma Web Development Course - Tutorial #113",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Reusable logic custom hooks mein."
+                },
+                {
+                    "title": "React Project: News App with API | Sigma Web Development Course - Tutorial #114",
+                    "duration": "~50:00+",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "News aggregator app using NewsAPI."
+                },
+                {
+                    "title": "Introduction to Redux | Sigma Web Development Course - Tutorial #115",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Redux store, actions, reducers basics."
+                },
+                {
+                    "title": "Redux Toolkit Setup | Sigma Web Development Course - Tutorial #116",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Modern Redux with @reduxjs/toolkit."
+                },
+                {
+                    "title": "Slices & createSlice in Redux Toolkit | Sigma Web Development Course - Tutorial #117",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Slices create karna."
+                },
+                {
+                    "title": "Connecting React with Redux | useSelector, useDispatch | Sigma Web Development Course - Tutorial #118",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Provider, hooks se Redux use."
+                },
+                {
+                    "title": "Async Thunks in Redux Toolkit | Sigma Web Development Course - Tutorial #119",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "API calls with createAsyncThunk."
+                },
+                {
+                    "title": "Learn Redux in One Video | Sigma Web Development Course - Tutorial #120",
+                    "duration": "~60:00+",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Redux full crash course / recap with project."
+                },
+                {
+                    "title": "Exercise 15 - Clear the Clutter | Sigma Web Development Course - Tutorial #91",
+                    "duration": "4:53",
+                    "videoUrl": "https://www.youtube.com/embed/1YSVEW3i8OQ",
+                    "description": "Files clutter clear karne ka practical exercise (organize project files)."
+                },
+                {
+                    "title": "ejs Template Engine in Express | Sigma Web Development Course - Tutorial #92",
+                    "duration": "21:28",
+                    "videoUrl": "https://www.youtube.com/embed/Kah88N8W5rs",
+                    "description": "EJS use karke dynamic HTML templates in Express."
+                },
+                {
+                    "title": "Exercise 15 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #93",
+                    "duration": "17:33",
+                    "videoUrl": "https://www.youtube.com/embed/bM7bmh955Gs",
+                    "description": "Exercise 15 ka solution aur students shoutouts."
+                },
+                {
+                    "title": "Installing MongoDB & MongoDB Compass | Sigma Web Development Course - Tutorial #94",
+                    "duration": "24:33",
+                    "videoUrl": "https://www.youtube.com/embed/oMrKVEedpHg",
+                    "description": "MongoDB local install aur Compass GUI tool."
+                },
+                {
+                    "title": "CRUD Operations in MongoDB | Sigma Web Development Course - Tutorial #95",
+                    "duration": "17:21",
+                    "videoUrl": "https://www.youtube.com/embed/9Om0FMBz1yU",
+                    "description": "MongoDB mein Create, Read, Update, Delete operations."
+                },
+                {
+                    "title": "Installing Mongoose & Using it with Express | Sigma Web Development Course - Tutorial #96",
+                    "duration": "23:19",
+                    "videoUrl": "https://www.youtube.com/embed/wgwo5hbY7SY",
+                    "description": "Mongoose ODM install aur Express se connect."
+                },
+                {
+                    "title": "Exercise 16 - Dummy Data Generator | Sigma Web Development Course - Tutorial #97",
+                    "duration": "5:42",
+                    "videoUrl": "https://www.youtube.com/embed/yDnxgIRcnso",
+                    "description": "Dummy data generate karne ka exercise (for DB testing)."
+                },
+                {
+                    "title": "Tailwind CSS in one Video | Sigma Web Development Course - Tutorial #98",
+                    "duration": "33:58",
+                    "videoUrl": "https://www.youtube.com/embed/-g969furGik",
+                    "description": "Tailwind CSS full crash course – utility-first CSS."
+                },
+                {
+                    "title": "Exercise 16 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #99",
+                    "duration": "22:44",
+                    "videoUrl": "https://www.youtube.com/embed/15jN-KKoSCA",
+                    "description": "Exercise 16 solution aur shoutouts."
+                },
+                {
+                    "title": "Exercise 17 - Design This Layout | Sigma Web Development Course - Tutorial #100",
+                    "duration": "3:14",
+                    "videoUrl": "https://www.youtube.com/embed/eGc35Qj0y4Q",
+                    "description": "Ek specific layout design karne ka challenge."
+                },
+                {
+                    "title": "Exercise 17 - Solution & Shoutouts | Sigma Web Development Course - Tutorial #101",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",  // Exact ID playlist se confirm kar lena agar missing
+                    "description": "Exercise 17 ka solution."
+                },
+                {
+                    "title": "React Introduction & Why use React? | Sigma Web Development Course - Tutorial #102",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/nhSZ4LhIii8",
+                    "description": "React kyun use karte hain, basics intro."
+                },
+                {
+                    "title": "Setting Up React Project | Sigma Web Development Course - Tutorial #103",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Vite ya CRA se React project setup."
+                },
+                {
+                    "title": "JSX & Components in React | Sigma Web Development Course - Tutorial #104",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "JSX syntax aur reusable components."
+                },
+                {
+                    "title": "Props in React | Sigma Web Development Course - Tutorial #105",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Props pass karna aur use."
+                },
+                {
+                    "title": "State & useState Hook | Sigma Web Development Course - Tutorial #106",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "useState se component state manage."
+                },
+                {
+                    "title": "Handling Events in React | Sigma Web Development Course - Tutorial #107",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "onClick, onSubmit jaise events."
+                },
+                {
+                    "title": "useEffect Hook | Sigma Web Development Course - Tutorial #108",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Side effects handle karna."
+                },
+                {
+                    "title": "Fetching Data in React | Sigma Web Development Course - Tutorial #109",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "fetch/API calls with useEffect."
+                },
+                {
+                    "title": "React Router DOM | Sigma Web Development Course - Tutorial #110",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Multi-page navigation in SPA."
+                },
+                {
+                    "title": "Context API & useContext | Sigma Web Development Course - Tutorial #111",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Global state management."
+                },
+                {
+                    "title": "useReducer Hook | Sigma Web Development Course - Tutorial #112",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Complex state logic."
+                },
+                {
+                    "title": "Custom Hooks in React | Sigma Web Development Course - Tutorial #113",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Reusable custom logic."
+                },
+                {
+                    "title": "React Project: NewsMonkey / News App | Sigma Web Development Course - Tutorial #114",
+                    "duration": "~50:00+",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "API-based news app project."
+                },
+                {
+                    "title": "Introduction to Redux | Sigma Web Development Course - Tutorial #115",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Redux basics: store, actions, reducers."
+                },
+                {
+                    "title": "Redux Toolkit Setup | Sigma Web Development Course - Tutorial #116",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Modern Redux with toolkit."
+                },
+                {
+                    "title": "Slices & createSlice | Sigma Web Development Course - Tutorial #117",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Redux slices create."
+                },
+                {
+                    "title": "useSelector & useDispatch in React-Redux | Sigma Web Development Course - Tutorial #118",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Redux connect to React components."
+                },
+                {
+                    "title": "Async Thunks & API Calls in Redux | Sigma Web Development Course - Tutorial #119",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "createAsyncThunk for async operations."
+                },
+                {
+                    "title": "Learn Redux in One Video | Sigma Web Development Course - Tutorial #120",
+                    "duration": "~60:00+",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Redux full recap aur practical examples."
+                },
+                {
+                    "title": "Introduction to Next.js & File based routing | Sigma Web Development Course - Tutorial #121",
+                    "duration": "~25:00",
+                    "videoUrl": "https://www.youtube.com/embed/nhSZ4LhIii8",  // Check playlist for exact if needed
+                    "description": "Next.js intro, installation, file-based routing basics."
+                },
+                {
+                    "title": "Server Components in Next.js | Sigma Web Development Course - Tutorial #122",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",  // Playlist se confirm kar lena
+                    "description": "Server vs Client components ka farq aur use."
+                },
+                {
+                    "title": "Script, Link & Image components in Next.js | Sigma Web Development Course - Tutorial #123",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Optimized <Script>, <Link>, <Image> tags in Next.js."
+                },
+                {
+                    "title": "Creating APIs in Next.js | Sigma Web Development Course - Tutorial #124",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "API routes banana (Route Handlers)."
+                },
+                {
+                    "title": "Server Actions in Next.js | Sigma Web Development Course - Tutorial #125",
+                    "duration": "~18:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Server Actions for form handling without API."
+                },
+                {
+                    "title": "Middleware in Next.js | Sigma Web Development Course - Tutorial #126",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Middleware for auth, redirects etc."
+                },
+                {
+                    "title": "Auth.js - Authentication in Next.js | Sigma Web Development Course - Tutorial #127",
+                    "duration": "~30:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "NextAuth.js / Auth.js se login/signup system."
+                },
+                {
+                    "title": "Dynamic Routes in Next.js | Sigma Web Development Course - Tutorial #128",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "[slug] dynamic pages banana."
+                },
+                {
+                    "title": "Next.js Project: Full-Stack Blog App (Part 1) | Sigma Web Development Course - Tutorial #129",
+                    "duration": "~40:00+",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Blog app shuru – frontend + backend integration."
+                },
+                {
+                    "title": "Next.js Project: Full-Stack Blog App (Part 2) | Sigma Web Development Course - Tutorial #130",
+                    "duration": "~35:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Blog app continue – CRUD, auth etc."
+                },
+                // ... (baaki videos mein project continue, deployment, optimization etc.)
+                {
+                    "title": "Deployment on Vercel | Sigma Web Development Course - Tutorial #135 (approx)",
+                    "duration": "~20:00",
+                    "videoUrl": "https://www.youtube.com/embed/---",
+                    "description": "Next.js app Vercel pe deploy karna (free & easy)."
+                },
+                {
+                    "title": "Concluding the Sigma Web Dev Course | Sigma Web Development Course - Tutorial #139",
+                    "duration": "~15:00",
+                    "videoUrl": "https://www.youtube.com/embed/iZb0NsF3Xwg",
+                    "description": "Course wrap-up, next steps, certificate suggestions, motivation, aur future courses (jaise AI-assisted dev)."
+                }
+            ],
+            '2': [
+                {
+                    "title": "JavaScript Full Course ❤️ | Variables & Data Types | Lecture 1",
+                    "duration": "1:21:11",
+                    "videoUrl": "https://www.youtube.com/embed/ajdRvxDWH4w",
+                    "description": "Introduction to JavaScript, setup, variables, data types aur practice questions."
+                },
+                {
+                    "title": "Lecture 2 : Operators and Conditional Statements | JavaScript Full Course",
+                    "duration": "1:16:47",
+                    "videoUrl": "https://www.youtube.com/embed/Zg4-uSjxosE",
+                    "description": "Operators (arithmetic, logical, comparison) aur if-else, switch conditionals detail mein."
+                },
+                {
+                    "title": "Lecture 3: Loops and Strings | JavaScript Full Course",
+                    "duration": "1:21:09",
+                    "videoUrl": "https://www.youtube.com/embed/UmRtFFSDSFo",
+                    "description": "for, while, do-while loops aur string methods, template literals."
+                },
+                {
+                    "title": "Lecture 4: Arrays | JavaScript Full Course",
+                    "duration": "1:00:26",
+                    "videoUrl": "https://www.youtube.com/embed/gFWhbjzowrM",
+                    "description": "Arrays create karna, methods (push, pop, splice, map, filter etc.) full explanation."
+                },
+                {
+                    "title": "Lecture 5: Functions & Methods | JavaScript Full Course",
+                    "duration": "1:09:10",
+                    "videoUrl": "https://www.youtube.com/embed/P0XMXqDGttU",
+                    "description": "Functions, parameters, return, arrow functions aur built-in methods."
+                },
+                {
+                    "title": "Lecture 6 : DOM - Document Object Model | JavaScript Full Course | Part 1",
+                    "duration": "1:22:31",
+                    "videoUrl": "https://www.youtube.com/embed/7zcXPCt8Ck0",
+                    "description": "DOM intro, selecting elements, manipulating HTML/CSS via JS (Part 1)."
+                },
+                {
+                    "title": "Lecture 7 : DOM (Part 2) | Document Object Model | JavaScript Full Course",
+                    "duration": "27:56",
+                    "videoUrl": "https://www.youtube.com/embed/fXAGTOZ25H8",
+                    "description": "DOM continuation – events, attributes, creating/removing elements."
+                },
+                {
+                    "title": "Lecture 8 : Events in JavaScript | JavaScript Full Course",
+                    "duration": "33:12",
+                    "videoUrl": "https://www.youtube.com/embed/_i-uLJAh79U",
+                    "description": "Event handling, click, input, mouse events aur event bubbling."
+                },
+                {
+                    "title": "Imp Update : JavaScript YouTube Course | Shradha Ma'am",
+                    "duration": "1:08",
+                    "videoUrl": "https://www.youtube.com/embed/3rlEe1sP6N4",
+                    "description": "Course update aur important announcement (short video)."
+                },
+                {
+                    "title": "Lecture 9 : Tic Tac Toe Game in JavaScript | JS Project | JavaScript Full Course",
+                    "duration": "53:35",
+                    "videoUrl": "https://www.youtube.com/embed/SqrppLEljkY",
+                    "description": "Tic Tac Toe game project build karna using DOM aur logic."
+                },
+                {
+                    "title": "Lecture 10 : MiniProject - Stone, Paper & Scissors Game | JavaScript Full Course",
+                    "duration": "47:06",
+                    "videoUrl": "https://www.youtube.com/embed/_V33HCZWLDQ",
+                    "description": "Rock Paper Scissors game project with JS logic aur UI."
+                },
+                {
+                    "title": "Lecture 11 : Classes & Objects | JavaScript Full Course",
+                    "duration": "1:00:43",
+                    "videoUrl": "https://www.youtube.com/embed/N-O4w6PynGY",
+                    "description": "OOP in JS: classes, constructors, objects, inheritance basics."
+                },
+                {
+                    "title": "Lecture 12 : Callbacks, Promises & Async Await | JavaScript Full Course",
+                    "duration": "1:23:55",
+                    "videoUrl": "https://www.youtube.com/embed/d3jXofmQm44",
+                    "description": "Callbacks, promises, chaining, async/await for asynchronous code."
+                },
+                {
+                    "title": "Last Lecture : Fetch API with Project | JavaScript Full Course",
+                    "duration": "1:17:15",
+                    "videoUrl": "https://www.youtube.com/embed/CyGodpqcid4",
+                    "description": "Fetch API use karke data fetch, error handling aur ek project (final lecture)."
+                }
+            ],
+            '3': [
+                {
+                    "title": "Complete React JS Course | MERN Stack Development",
+                    "duration": "3:26:01",  // Approx full length from timestamps
+                    "videoUrl": "https://www.youtube.com/embed/E6tAtRi82QY",
+                    "description": "Full React course for beginners to intermediate: Setup, JSX, Hooks (useState, useEffect), Tailwind CSS, forms, two-way binding, reusable components, props, API calls with Axios, React Router for navigation, Context API for state management, aur practical MERN-style project building."
+                }
+            ],
+            '4': [
+                {
+                    "title": "Data Science FULL Course for Beginners in 27 HOURS - 2025 Edition",
+                    "duration": "27:00:00",
+                    "videoUrl": "https://www.youtube.com/embed/gDZ6czwuQ18",
+                    "description": "Complete Data Science course for beginners: Statistics & Probability in-depth, Machine Learning roadmap, data cleaning (missing values, encoding, scaling, outliers), Supervised (Regression: Linear/Multiple/Polynomial, Classification: Logistic, Naive Bayes), Non-linear (Decision Trees, KNN, SVM), Unsupervised (Clustering: K-Means, Hierarchical, DBSCAN), Ensemble (Random Forest, Bagging), Deep Learning (ANN, Perceptrons, Backpropagation, Activation/Loss/Optimizers, CNN basics), practical implementations aur projects like Customer Churn Prediction. Hindi/English mix, hands-on coding."
+                }
+            ],
+            '5': [
+                {
+                    "title": "Machine Learning Full Course with Scikit-Learn | Math + Python + AI | Sagar Chouksey",
+                    "duration": "4:13:19",
+                    "videoUrl": "https://www.youtube.com/embed/ie4oGI85SAE",
+                    "description": "Beginner se complete ML course: Math basics, ML foundations (AI/ML/DL difference), data preprocessing (missing values, encoding, scaling, split), supervised algorithms (Linear/Logistic Regression, KNN, Decision Trees), evaluation metrics (Accuracy, F1, MSE etc.), aur end-to-end project 'Student Score Prediction'. Scikit-Learn, Pandas, NumPy, Matplotlib use karke hands-on coding. Job-ready skills for data science/ML."
+                }
+            ],
+            '6': [
+                {
+                    "title": "4 Hours of FREE Freelancing Course 2025 | Make $1,000+ | Best Freelancing Course",
+                    "duration": "4:00:00",
+                    "videoUrl": "https://www.youtube.com/embed/Ds0-tZZc_gY",
+                    "description": "Complete free freelancing course 2025: Social media se clients laake $1000+/month kamana (no Upwork/Fiverr). Profile optimization, content for trust, pricing strategy ($500+ start), prospecting high-paying clients, cold DMs personalize karna, Zoom calls confidently handle, deals close karna, proposals/contracts send, delivery + testimonials/upsells/referrals. Bonus mindset tips. Practical for beginners in web design, video editing, SMMA etc."
+                }
+            ],
+            '7': [
+                {
+                    "title": "AI Complete OneShot Course for Beginners | Learn AI & ML Fundamentals from Scratch",
+                    "duration": "1:06:26",
+                    "videoUrl": "https://www.youtube.com/embed/D1eL1EnxXXQ",
+                    "description": "AI/ML beginners ke liye complete one-shot: AI basics aur applications, ML types (Supervised/Unsupervised/Reinforcement), Deep Learning concepts (neural networks, propagation), Generative AI tools (ChatGPT, Midjourney etc.), NLP & LLMs, Computer Vision, tools intro (Python, Scikit-Learn, TensorFlow). Job prep mindset aur real examples. Paid Prime AI/ML batch teaser bhi."
+                }
+            ],
+            '8': [
+                {
+                    "title": "Cyber Security Full Course for Beginners in 11 Hours - 2025 Edition",
+                    "duration": "11:45:00",
+                    "videoUrl": "https://www.youtube.com/embed/v3iUx2SNspY",
+                    "description": "Complete beginner cybersecurity course (2025 edition): Ethical hacking intro, roadmap, networking basics, Linux/Kali setup (hacker laptop/phone with NetHunter), web vulnerabilities (SQLi, XSS, WordPress hack, WAF), penetration testing, mobile/IoT hacking (CCTV, phone apps, NGROK), advanced attacks (password cracking, steganography, firewalls, Facebook/Zaproxy), digital forensics, identity theft prevention, TOR anonymity, Pegasus spyware, AI impact on jobs, why people fail, top Kali tools, free resources, essential skills. Practical demos aur ethical focus – job prep ke liye mast!"
+                }
+            ]
+        };
+
+
+        function checkAuth() {
+            // First run global session check from script.js
+            if (typeof checkSession === 'function') {
+                checkSession();
+            }
+
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+
+            // Get course ID from URL
+            const params = new URLSearchParams(window.location.search);
+            courseId = params.get('id') || '1';
+
+            // Check if user is enrolled
+            if (!currentUser.enrolledCourses || !currentUser.enrolledCourses.includes(courseId)) {
+                alert('You are not enrolled in this course!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            loadCourse();
+        }
+
+        function loadCourse() {
+            const lectures = courseLectures[courseId] || courseLectures['1'];
+            const lecturesList = document.getElementById('lecturesList');
+            lecturesList.innerHTML = '';
+
+            // Get completed lectures from localStorage
+            const completedLectures = JSON.parse(localStorage.getItem(`course_${courseId}_completed`) || '[]');
+
+            lectures.forEach((lecture, index) => {
+                const isCompleted = completedLectures.includes(index);
+                const isActive = index === currentLectureIndex;
+
+                const lectureItem = document.createElement('div');
+                lectureItem.className = `lecture-item-player ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+                lectureItem.onclick = () => playLecture(index);
+
+                lectureItem.innerHTML = `
+    <i class="${isCompleted ? 'ri-checkbox-circle-fill' : 'ri-play-circle-line'}"></i>
+    <div class="lecture-details">
+        <h3>${lecture.title}</h3>
+        <span>${lecture.duration}</span>
+    </div>
+    <div class="progress-indicator">${isCompleted ? '✓' : index + 1}</div>
+    `;
+
+                lecturesList.appendChild(lectureItem);
+            });
+
+            // Update progress
+            updateProgress(completedLectures.length, lectures.length);
+
+            // Load first lecture
+            playLecture(currentLectureIndex);
+        }
+
+        function playLecture(index) {
+            const lectures = courseLectures[courseId] || courseLectures['1'];
+            if (index < 0 || index >= lectures.length) return;
+
+            currentLectureIndex = index;
+            const lecture = lectures[index];
+
+            // Update video player
+            document.getElementById('videoPlayer').src = lecture.videoUrl ||
+                `https://www.youtube.com/embed/${lecture.videoId}`;
+            document.getElementById('currentLectureTitle').textContent = lecture.title;
+            document.getElementById('currentLectureDesc').textContent = lecture.description;
+
+            // Update active state
+            document.querySelectorAll('.lecture-item-player').forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Mark as completed
+            markLectureCompleted(index);
+        }
+
+        function markLectureCompleted(index) {
+            const completedLectures = JSON.parse(localStorage.getItem(`course_${courseId}_completed`) || '[]');
+            if (!completedLectures.includes(index)) {
+                completedLectures.push(index);
+                localStorage.setItem(`course_${courseId}_completed`, JSON.stringify(completedLectures));
+
+                // Update UI
+                const lectures = courseLectures[courseId] || courseLectures['1'];
+                updateProgress(completedLectures.length, lectures.length);
+
+                // Update lecture item
+                const lectureItems = document.querySelectorAll('.lecture-item-player');
+                if (lectureItems[index]) {
+                    lectureItems[index].classList.add('completed');
+                    lectureItems[index].querySelector('i').className = 'ri-checkbox-circle-fill';
+                    lectureItems[index].querySelector('.progress-indicator').textContent = '✓';
+                }
+            }
+        }
+
+        function updateProgress(completed, total) {
+            document.getElementById('courseProgress').textContent = `${completed} of ${total} lectures completed`;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAuth();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Dashboard - CodeCampus" />
+    <meta name="author" content="CodeCampus" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard - Code Campus</title>
+</head>
+<style>
+    .root-left li:nth-child(2) {
+        background: linear-gradient(#0D47C7, #5A6FD6, #C77DFF);
+    }
+
+    .root-left li:nth-child(2) a {
+        color: white;
+    }
+
+    .root-left li:nth-child(1) {
+        background: none;
+    }
+
+    .root-left li:nth-child(1) a {
+        color: black;
+    }
+</style>
+
+<body>
+
+    <div id="root">
+        <div class="root-left">
+            <div class="logo-wrap">
+                <button class="hamburger" aria-label="Open menu"><i class="ri-menu-line"></i></button>
+                <img src="logo.png" alt="CodeCampus Logo" class="logo-img" />
+            </div>
+            <ul class="nav-list">
+                <li><a href="index.html"><i class="ri-graduation-cap-fill"></i> <span
+                            class="link-text">Courses</span></a></li>
+                <li><a href="dashboard.html"><i class="ri-dashboard-fill"></i> <span
+                            class="link-text">Dashboard</span></a></li>
+                <li><a href="enrolled-courses.html"><i class="ri-shield-check-fill"></i> <span class="link-text">My
+                            Courses</span></a></li>
+                <li><a href="about.html"><i class="ri-info-i"></i> <span class="link-text">About Us</span></a></li>
+                <li><a href="https://rehan-comm.github.io/Rehan-Developer/"><i class="ri-computer-fill"></i> <span
+                            class="link-text">Visit Portfolio</span></a></li>
+                <li><a href="contact.html"><i class="ri-customer-service-fill"></i> <span class="link-text">Help
+                            Center</span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="root-right">
+            <div class="root-right-up">
+                <button id="authBtn" onclick="window.location.href='login.html'"><a href="#">Sign
+                        up/Register</a></button>
+                <div id="profileDropdown" class="dropdown-container hidden">
+                    <button class="dropdown-btn"><img id="profileImg" src="" alt="Profile"></button>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <ul>
+                            <li><a href="profile.html"><i class="ri-user-line"></i> Profile</a></li>
+                            <li><a href="enrolled-courses.html"><i class="ri-book-line"></i> My Courses</a></li>
+                            <li><a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a></li>
+                            <li><a href="#" class="logout" onclick="handleLogout(); return false;"><i
+                                        class="ri-logout-box-line"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="root-right-down detail-page">
+                <div class="course-detail-container">
+                    <h2 style="margin-bottom: 30px; font-size: 28px; color: #1a1a1a;">Learning Dashboard</h2>
+
+                    <!-- Stats Cards -->
+                    <div class="dashboard-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="ri-book-open-line"></i></div>
+                            <div class="stat-info">
+                                <h4>Enrolled Courses</h4>
+                                <p id="enrolledCount">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon completed"><i class="ri-checkbox-circle-line"></i></div>
+                            <div class="stat-info">
+                                <h4>Completed</h4>
+                                <p id="completedCount">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon pending"><i class="ri-hourglass-2-line"></i></div>
+                            <div class="stat-info">
+                                <h4>In Progress</h4>
+                                <p id="inProgressCount">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon hours"><i class="ri-time-line"></i></div>
+                            <div class="stat-info">
+                                <h4>Learning Hours</h4>
+                                <p id="hoursCount">0h</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>Course Progress</h3>
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Time Spent</h3>
+                            <canvas id="timeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="activityList" class="activity-list">
+                            <!-- Activities will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="script.js"></script>
+    <script>
+        let currentUser = null;
+
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            loadDashboardData();
+        }
+
+        function loadDashboardData() {
+            const enrolledCourses = currentUser.enrolledCourses || [];
+            const completed = Math.floor(enrolledCourses.length * 0.6);
+            const inProgress = enrolledCourses.length - completed;
+            const totalHours = enrolledCourses.length * 12.5;
+
+            document.getElementById('enrolledCount').textContent = enrolledCourses.length;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('inProgressCount').textContent = inProgress;
+            document.getElementById('hoursCount').textContent = totalHours.toFixed(1) + 'h';
+
+            loadCharts(enrolledCourses, completed, inProgress);
+            loadActivityList();
+        }
+
+        function loadCharts(enrolledCourses, completed, inProgress) {
+            // Progress Chart
+            const progressCtx = document.getElementById('progressChart').getContext('2d');
+            new Chart(progressCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'In Progress'],
+                    datasets: [{
+                        data: [completed, inProgress],
+                        backgroundColor: ['#10b981', '#f59e0b'],
+                        borderColor: ['#fff', '#fff'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Time Chart
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            new Chart(timeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Hours Spent',
+                        data: [2, 3.5, 1.5, 4, 2.5, 3, 1],
+                        backgroundColor: 'linear-gradient(to bottom, #0D47C7, #C77DFF)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadActivityList() {
+            const activities = [
+                { type: 'completed', text: 'Completed "JavaScript Basics" lesson', time: '2 hours ago' },
+                { type: 'enrolled', text: 'Enrolled in "Machine Learning & AI"', time: '1 day ago' },
+                { type: 'completed', text: 'Completed "Web Development Bootcamp"', time: '3 days ago' },
+                { type: 'started', text: 'Started "Photo Editing Mastery Course"', time: '5 days ago' }
+            ];
+
+            const activityList = document.getElementById('activityList');
+            activityList.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-icon ${activity.type}">
+                        <i class="ri-${activity.type === 'completed' ? 'checkbox-circle' : activity.type === 'enrolled' ? 'add-circle' : 'play-circle'}-line"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>${activity.text}</p>
+                        <span>${activity.time}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAuth();
+        });
+    </script>
+</body>
+
+</html>

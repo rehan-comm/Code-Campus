@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Help Center - Code Campus | Contact us, FAQs, and support">
+    <title>Help Center | Code Campus</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-start: #667eea;
+            --primary-end: #764ba2;
+            --dark: #0f0f1a;
+            --light: #e0e0ff;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            line-height: 1.7;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+        }
+
+        .section {
+            padding: 80px 0;
+        }
+
+        h1,
+        h2 {
+            background: linear-gradient(90deg, #a78bfa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-header {
+            padding: 1.2rem 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .faq-header:hover {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .faq-body {
+            padding: 0 1.5rem 1.5rem;
+            display: none;
+        }
+
+        .faq-body.show {
+            display: block;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-whatsapp:hover {
+            background: #20b858;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background: linear-gradient(to top, #0a0a14, #1a1a2e);
+            padding: 40px 0;
+            border-top: 1px solid rgba(102, 126, 234, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hero -->
+    <section class="gradient-bg text-center py-5">
+        <div class="container py-5">
+            <h1 class="display-4 fw-bold">Help Center</h1>
+            <p class="lead mt-3 opacity-75">We're here to help you learn better. Ask anything!</p>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="text-center mb-5">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <div class="faq-header d-flex justify-content-between align-items-center" onclick="toggleFaq(this)">
+                    <h5 class="mb-0">How do I enroll in a course?</h5>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    <p>Just click on any course → "Enroll Now" → Sign up/Login → Start learning instantly. Most starter
+                        courses are free!</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header d-flex justify-content-between align-items-center" onclick="toggleFaq(this)">
+                    <h5 class="mb-0">Are certificates provided?</h5>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    <p>Yes! On course completion you get a digital certificate that you can add to your LinkedIn/resume.
+                    </p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header d-flex justify-content-between align-items-center" onclick="toggleFaq(this)">
+                    <h5 class="mb-0">Can I learn on mobile?</h5>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    <p>Absolutely. Our platform is fully mobile-responsive. You can also download videos for offline
+                        viewing (coming soon).</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header d-flex justify-content-between align-items-center" onclick="toggleFaq(this)">
+                    <h5 class="mb-0">How do I contact support?</h5>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    <p>Use the form below or message us directly on WhatsApp: <a href="https://wa.me/923426271198"
+                            class="text-success">+92 342 6271198</a></p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header d-flex justify-content-between align-items-center" onclick="toggleFaq(this)">
+                    <h5 class="mb-0">Do you offer refunds?</h5>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    <p>Yes, 7-day money-back guarantee on premium courses if you're not satisfied.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="section bg-dark">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="contact-card text-center">
+                        <h2 class="mb-4">Get in Touch</h2>
+                        <p class="mb-5 opacity-75">Fill the form and we'll get back to you quickly (or chat directly on
+                            WhatsApp).</p>
+
+                        <form id="contactForm">
+                            <div class="mb-4">
+                                <input type="text" class="form-control form-control-lg" id="name"
+                                    placeholder="Your Full Name" required>
+                            </div>
+                            <div class="mb-4">
+                                <input type="email" class="form-control form-control-lg" id="email"
+                                    placeholder="Your Email Address" required>
+                            </div>
+                            <div class="mb-5">
+                                <textarea class="form-control form-control-lg" id="message" rows="5"
+                                    placeholder="Your Message / Query..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-whatsapp btn-lg px-5 py-3">
+                                <i class="fab fa-whatsapp me-2 fs-4"></i> Send to WhatsApp
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <p>© 2026 Code Campus — Made with Rehan Gujjar in Layyah, Pakistan</p>
+            <div class="mt-3">
+                <a href="/about" class="mx-3">About</a>
+                <a href="/courses" class="mx-3">Courses</a>
+                <a href="/help" class="mx-3">Help Center</a>
+                <a href="https://wa.me/923426271198" class="mx-3 text-success">WhatsApp Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // FAQ Accordion
+        function toggleFaq(element) {
+            const body = element.nextElementSibling;
+            body.classList.toggle('show');
+            const icon = element.querySelector('i');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // WhatsApp Form Submit
+        document.getElementById('contactForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!name || !email || !message) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            const whatsappMsg = `*New Help Query from Code Campus Website*\n\n*Name:* ${name}\n*Email:* ${email}\n*Message:* ${message}\n\nReply soon!`;
+
+            const encodedMsg = encodeURIComponent(whatsappMsg);
+            const whatsappUrl = `https://wa.me/923426271198?text=${encodedMsg}`;
+
+            window.open(whatsappUrl, '_blank');
+
+            // Optional: Clear form after send
+            this.reset();
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Profile - CodeCampus" />
+    <meta name="author" content="CodeCampus" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Profile - Code Campus</title>
+</head>
+
+<body>
+
+    <div id="root">
+        <div class="root-left">
+            <div class="logo-wrap">
+                <button class="hamburger" aria-label="Open menu"><i class="ri-menu-line"></i></button>
+                <img src="logo.png" alt="CodeCampus Logo" class="logo-img" />
+            </div>
+            <ul class="nav-list">
+                <li><a href="index.html"><i class="ri-graduation-cap-fill"></i> <span
+                            class="link-text">Courses</span></a></li>
+                <li><a href="dashboard.html"><i class="ri-dashboard-fill"></i> <span
+                            class="link-text">Dashboard</span></a></li>
+                <li><a href="enrolled-courses.html"><i class="ri-shield-check-fill"></i> <span class="link-text">My
+                            Courses</span></a></li>
+                <li><a href="about.html"><i class="ri-info-i"></i> <span class="link-text">About Us</span></a></li>
+                <li><a href="https://rehan-comm.github.io/Rehan-Developer/"><i class="ri-computer-fill"></i> <span
+                            class="link-text">Visit Portfolio</span></a></li>
+                <li><a href="contact.html"><i class="ri-customer-service-fill"></i> <span class="link-text">Help
+                            Center</span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="root-right">
+            <div class="root-right-up">
+                <button id="authBtn" onclick="window.location.href='login.html'"><a href="#">Sign
+                        up/Register</a></button>
+                <div id="profileDropdown" class="dropdown-container hidden">
+                    <button class="dropdown-btn"><img id="profileImg" src="" alt="Profile"></button>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <ul>
+                            <li><a href="profile.html"><i class="ri-user-line"></i> Profile</a></li>
+                            <li><a href="enrolled-courses.html"><i class="ri-book-line"></i> My Courses</a></li>
+                            <li><a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a></li>
+                            <li><a href="#" class="logout" onclick="handleLogout(); return false;"><i
+                                        class="ri-logout-box-line"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="root-right-down detail-page">
+                <div class="course-detail-container">
+                    <button class="back-btn" onclick="window.history.back()"><i class="ri-arrow-left-line"></i>
+                        Back</button>
+
+                    <div class="profile-container">
+                        <div class="profile-header">
+                            <img id="profileImageLarge" src="" alt="Profile" class="profile-image">
+                            <div class="profile-info">
+                                <h1 id="userName"></h1>
+                                <p id="userEmail"></p>
+                                <button class="edit-profile-btn" onclick="enableEditMode()"><i class="ri-edit-line"></i>
+                                    Edit Profile</button>
+                            </div>
+                        </div>
+
+                        <!-- View Mode -->
+                        <div class="profile-section" id="viewMode">
+                            <h2>Account Details</h2>
+                            <div class="detail-item">
+                                <span class="label">Name</span>
+                                <span id="displayName" class="value"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Email</span>
+                                <span id="displayEmail" class="value"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Member Since</span>
+                                <span id="memberSince" class="value"></span>
+                            </div>
+                            <button class="change-password-btn" onclick="showPasswordModal()"><i
+                                    class="ri-lock-line"></i> Change Password</button>
+                        </div>
+
+                        <!-- Edit Mode -->
+                        <div class="profile-section hidden" id="editMode">
+                            <h2>Edit Profile</h2>
+                            <input type="text" id="editName" placeholder="Full Name" class="edit-input">
+                            <input type="email" id="editEmail" placeholder="Email" class="edit-input">
+                            <div class="image-upload-edit">
+                                <label for="editProfileImage" class="image-label">
+                                    <i class="ri-image-add-line"></i> Change Profile Picture
+                                </label>
+                                <input type="file" id="editProfileImage" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="button-group">
+                                <button class="save-btn" onclick="saveProfile()"><i class="ri-save-line"></i> Save
+                                    Changes</button>
+                                <button class="cancel-btn" onclick="cancelEditMode()"><i class="ri-close-line"></i>
+                                    Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+            <input type="password" id="currentPassword" placeholder="Current Password" class="modal-input">
+            <input type="password" id="newPassword" placeholder="New Password (min 6 chars)" class="modal-input">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" class="modal-input">
+            <div class="modal-message" id="passwordMessage"></div>
+            <div class="button-group">
+                <button class="save-btn" onclick="changePassword()"><i class="ri-check-line"></i> Change</button>
+                <button class="cancel-btn" onclick="closePasswordModal()"><i class="ri-close-line"></i> Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="script.js"></script>
+    <script>
+        let currentUser = null;
+
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            loadProfileData();
+        }
+
+        function loadProfileData() {
+            document.getElementById('profileImageLarge').src = currentUser.image;
+            document.getElementById('profileImg').src = currentUser.image;
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('displayName').textContent = currentUser.name;
+            document.getElementById('displayEmail').textContent = currentUser.email;
+
+            const createdDate = new Date(currentUser.id).toLocaleDateString();
+            document.getElementById('memberSince').textContent = createdDate;
+
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editEmail').value = currentUser.email;
+        }
+
+        function enableEditMode() {
+            document.getElementById('viewMode').classList.add('hidden');
+            document.getElementById('editMode').classList.remove('hidden');
+        }
+
+        function cancelEditMode() {
+            document.getElementById('viewMode').classList.remove('hidden');
+            document.getElementById('editMode').classList.add('hidden');
+            loadProfileData();
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('editName').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+
+            if (!name || !email) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            currentUser.name = name;
+            currentUser.email = email;
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const index = users.findIndex(u => u.id === currentUser.id);
+            if (index >= 0) {
+                users[index] = currentUser;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            loadProfileData();
+            document.getElementById('viewMode').classList.remove('hidden');
+            document.getElementById('editMode').classList.add('hidden');
+            alert('Profile updated successfully!');
+        }
+
+        function showPasswordModal() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordMessage').textContent = '';
+        }
+
+        function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (!current || !newPass || !confirm) {
+                showPasswordMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            if (current !== currentUser.password) {
+                showPasswordMessage('Current password is incorrect', 'error');
+                return;
+            }
+
+            if (newPass.length < 6) {
+                showPasswordMessage('New password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (newPass !== confirm) {
+                showPasswordMessage('Passwords do not match', 'error');
+                return;
+            }
+
+            currentUser.password = newPass;
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const index = users.findIndex(u => u.id === currentUser.id);
+            if (index >= 0) {
+                users[index] = currentUser;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showPasswordMessage('Password changed successfully!', 'success');
+            setTimeout(() => {
+                closePasswordModal();
+            }, 1500);
+        }
+
+        function showPasswordMessage(msg, type) {
+            const messageEl = document.getElementById('passwordMessage');
+            messageEl.textContent = msg;
+            messageEl.className = 'modal-message ' + (type === 'error' ? 'error' : 'success');
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAuth();
+        });
+    </script>
+</body>
+
+</html>

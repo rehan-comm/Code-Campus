@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="My Courses - CodeCampus" />
+    <meta name="author" content="CodeCampus" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <title>My Courses - Code Campus</title>
+</head>
+<style>
+    .root-left li:nth-child(3) {
+        background: linear-gradient(#0D47C7, #5A6FD6, #C77DFF);
+    }
+
+    .root-left li:nth-child(3) a {
+        color: white;
+    }
+
+    .root-left li:nth-child(2) {
+        background: none;
+    }
+
+    .root-left li:nth-child(2) a {
+        color: black;
+    }
+
+    .root-left li:nth-child(1) {
+        background: none;
+    }
+
+    .root-left li:nth-child(1) a {
+        color: black;
+    }
+</style>
+
+<body>
+
+    <div id="root">
+        <div class="root-left">
+            <div class="logo-wrap">
+                <button class="hamburger" aria-label="Open menu"><i class="ri-menu-line"></i></button>
+                <img src="logo.png" alt="CodeCampus Logo" class="logo-img" />
+            </div>
+            <ul class="nav-list">
+                <li><a href="index.html"><i class="ri-graduation-cap-fill"></i> <span
+                            class="link-text">Courses</span></a></li>
+                <li><a href="dashboard.html"><i class="ri-dashboard-fill"></i> <span
+                            class="link-text">Dashboard</span></a></li>
+                <li><a href="enrolled-courses.html"><i class="ri-shield-check-fill"></i> <span class="link-text">My
+                            Courses</span></a></li>
+                <li><a href="about.html"><i class="ri-info-i"></i> <span class="link-text">About Us</span></a></li>
+                <li><a href="https://rehan-comm.github.io/Rehan-Developer/"><i class="ri-computer-fill"></i> <span
+                            class="link-text">Visit Portfolio</span></a></li>
+                <li><a href="contact.html"><i class="ri-customer-service-fill"></i> <span class="link-text">Help
+                            Center</span></a>
+                </li>
+            </ul>
+        </div>
+        <div class="root-right">
+            <div class="root-right-up">
+                <button id="authBtn" onclick="window.location.href='login.html'"><a href="#">Sign
+                        up/Register</a></button>
+                <div id="profileDropdown" class="dropdown-container hidden">
+                    <button class="dropdown-btn"><img id="profileImg" src="" alt="Profile"></button>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <ul>
+                            <li><a href="profile.html"><i class="ri-user-line"></i> Profile</a></li>
+                            <li><a href="enrolled-courses.html"><i class="ri-book-line"></i> My Courses</a></li>
+                            <li><a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a></li>
+                            <li><a href="#" class="logout" onclick="handleLogout(); return false;"><i
+                                        class="ri-logout-box-line"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="root-right-down detail-page">
+                <div class="course-detail-container">
+                    <button class="back-btn" onclick="window.history.back()"><i class="ri-arrow-left-line"></i>
+                        Back</button>
+
+                    <h2 style="margin-bottom: 30px; font-size: 28px; color: #1a1a1a;">My Enrolled Courses</h2>
+
+                    <div id="enrolledCoursesContainer" class="enrolled-courses-grid">
+                        <!-- Courses will be loaded here -->
+                    </div>
+
+                    <div id="emptyMessage" class="empty-state">
+                        <i class="ri-book-line"></i>
+                        <h3>No Enrolled Courses Yet</h3>
+                        <p>Start learning by enrolling in a course today!</p>
+                        <a href="index.html" class="back-to-courses-btn"><i class="ri-arrow-right-line"></i> Browse
+                            Courses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="script.js"></script>
+    <script>
+        let currentUser = null;
+
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            loadEnrolledCourses();
+        }
+
+        function loadEnrolledCourses() {
+            const container = document.getElementById('enrolledCoursesContainer');
+            const emptyMessage = document.getElementById('emptyMessage');
+
+            const enrolledIds = currentUser.enrolledCourses || [];
+
+            if (enrolledIds.length === 0) {
+                container.style.display = 'none';
+                emptyMessage.style.display = 'flex';
+                emptyMessage.flexDirection = 'column';
+                emptyMessage.alignItems = 'center';
+                return;
+            }
+
+            emptyMessage.style.display = 'none';
+            container.innerHTML = '';
+
+            const coursesData = {
+                '1': {
+                    id: 1,
+                    name: 'The Complete Web Development Bootcamp 2025',
+                    instructor: 'Dr. Angela Yu',
+                    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop',
+                    progress: 65
+                },
+                '2': {
+                    id: 2,
+                    name: 'Advanced Photo Editing Mastery Course',
+                    instructor: 'Michael Chen',
+                    image: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=800&auto=format&fit=crop',
+                    progress: 38
+                },
+                '3': {
+                    id: 3,
+                    name: 'Machine Learning & AI Fundamentals',
+                    instructor: 'Dr. Sarah Johnson',
+                    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop',
+                    progress: 92
+                }
+            };
+
+            enrolledIds.forEach(courseId => {
+                const course = coursesData[courseId];
+                if (course) {
+                    const card = document.createElement('div');
+                    card.className = 'enrolled-course-card';
+                    card.innerHTML = `
+                        <div class="enrolled-thumbnail">
+                            <img src="${course.image}" alt="${course.name}">
+                            <div class="progress-overlay">${course.progress}%</div>
+                        </div>
+                        <div class="enrolled-content">
+                            <h3>${course.name}</h3>
+                            <p>${course.instructor}</p>
+                            <div class="progress-bar-enrolled">
+                                <div class="progress-fill-enrolled" style="width: ${course.progress}%"></div>
+                            </div>
+                            <button class="continue-btn" onclick="goToCourse('${courseId}', '${course.name}')">
+                                <i class="ri-play-line"></i> Continue Learning
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            });
+        }
+
+        function goToCourse(courseId, courseName) {
+            window.location.href = 'course-learn.html?id=' + courseId + '&name=' + encodeURIComponent(courseName);
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAuth();
+        });
+    </script>
+</body>
+
+</html>
